@@ -48,11 +48,10 @@ const ledgerSchema = new mongoose.Schema(
 )
 
 // IMPORTANT: Ledger is IMMUTABLE
-ledgerSchema.pre("save", function (next) {
+ledgerSchema.pre("save", function () {
   if (!this.isNew) {
-    return next(new Error("Ledger entries are immutable"))
+    throw new Error("Ledger entries are immutable");
   }
-  next()
-})
+});
 
 export default mongoose.model("Ledger", ledgerSchema)

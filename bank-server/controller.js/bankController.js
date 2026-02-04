@@ -36,8 +36,9 @@ const handleGetBalance = async (req, res) => {
 
 const handleCreateAccount = async (req, res) => {
     const userId = req.body.userId;
+    const email = req.body.email;
     
-    Account.create({ userId });
+    Account.create({ userId, email });
     Ledger.create({
         userId,
         type: "CREDIT",
@@ -80,7 +81,8 @@ const hanldeTransferAmount = async (req, res) => {
 }
 
 const handleGetUsers = async (req, res)=>{
-    const users = Account.find();
+    const users = await Account.find();
+    
 
     return res.status(200).json(users);
 }

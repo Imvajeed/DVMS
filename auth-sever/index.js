@@ -5,6 +5,12 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import profileRouter from "./routers/profile.js"
 import resetPassword from './routers/resetPassword.js';
+import dotenv from "dotenv";
+import { connectRabbitMQ } from "./events/rabbitmq.js";
+
+await connectRabbitMQ();
+
+dotenv.config();
 
 const app = express();
 connectDB();

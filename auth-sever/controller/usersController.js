@@ -2,6 +2,8 @@ import User from '../modles/Users.js'
 import { generateAccessToken, generateRefreshToken } from './tokens.js';
 import fs from "fs"
 import crypto from "crypto"
+import { publish } from "../events/rabbitmq.js"
+import { USER_EVENTS } from "../events/user-events.js"
 
 
 const publicKey = fs.readFileSync("../keys/access_public.pem")
@@ -42,6 +44,11 @@ const handleRegisterUser = async (req, res) => {
             password
         })
 
+        publish(USER_EVENTS.USER_CREATED, {
+            userId: user._id.toString(),
+            email: user.email,
+            createdAt: new Date().toISOString()
+        })
         // 4. Response (never send password)
         return res.status(201).json({
             message: "User registered successfully",
@@ -65,7 +72,7 @@ const handleRegisterUser = async (req, res) => {
 
 const handleLoginUser = async (req, res) => {
 
-    
+
     const { email, password } = req.body
 
     if (!email || !password) {
@@ -100,30 +107,30 @@ const handleLoginUser = async (req, res) => {
 
 }
 
-const handleRefreshController = async (req, res)=>{
+const handleRefreshController = async (req, res) => {
     const refreshToken = req.cookies.refreshToken
-  if (!refreshToken) return res.sendStatus(401)
+    if (!refreshToken) return res.sendStatus(401)
 
-  const hashed = hashToken(refreshToken)
+    const hashed = hashToken(refreshToken)
 
-  const user = await User.findOne({ refreshToken: hashed })
-  if (!user) return res.sendStatus(403)
+    const user = await User.findOne({ refreshToken: hashed })
+    if (!user) return res.sendStatus(403)
 
-  // ROTATE refresh token
-  const newRefreshToken = generateRefreshToken()
-  user.refreshToken = hashToken(newRefreshToken)
-  await user.save()
+    // ROTATE refresh token
+    const newRefreshToken = generateRefreshToken()
+    user.refreshToken = hashToken(newRefreshToken)
+    await user.save()
 
-  const newAccessToken = generateAccessToken(user)
+    const newAccessToken = generateAccessToken(user)
 
-  res.cookie("refreshToken", newRefreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000
-  })
+    res.cookie("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    })
 
-  return res.json({ accessToken: newAccessToken })
+    return res.json({ accessToken: newAccessToken })
 }
 
 

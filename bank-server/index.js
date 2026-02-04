@@ -1,5 +1,16 @@
 import express from "express";
 import bankRouter from "./routers/bank.js"
+import dotenv from "dotenv";
+import { connectRabbitMQ } from "./events/rabbitmq.js"
+import { startUserConsumer } from "./events/userConsumer.js"
+import connectDB from "./db.js";
+
+connectDB();
+
+await connectRabbitMQ()
+await startUserConsumer()
+
+dotenv.config();
 
 
 const app = express();

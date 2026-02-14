@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+
+  api-gateway:
+    build: ./API-gateway
+    ports:
+      - "8000:3000"
+    depends_on:
+      - auth-server
+      - product-service
+      - cart-checkout-server
+      - bank-server
+
+  auth-server:
+    build: ./auth-server
+    ports:
+      - "8001:3000"
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URL: mongodb://mongo:27017/auth-server
+
+  product-service:
+    build: ./product-service
+    ports:
+      - "8002:3000"
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URL: mongodb://mongo:27017/product-server
+
+  cart-checkout-server:
+    build: ./cart-checkout-server
+    ports:
+      - "8003:3000"
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URL: mongodb://mongo:27017/cart-server
+
+  bank-server:
+    build: ./bank-server
+    ports:
+      - "8004:3000"
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+
+volumes:
+  mongo-data:

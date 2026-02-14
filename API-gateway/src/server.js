@@ -5,69 +5,51 @@ import { authenticate } from "./middlewares/auth.js"
 import { gatewayRateLimit } from "./middlewares/rateLimit.js"
 import { createServiceProxy } from "./proxy/proxy.js"
 
-const app = express()
+export const services = {
 
-app.use(cors())
-app.use(express.json())
-app.use(gatewayRateLimit)
+  auth: {
+    prefix: "/auth",
+    target: "http://auth-server:3000"
+  },
 
-// Public routes (NO auth)
-app.use(
-  services.auth.prefix,
-  createServiceProxy(services.auth.target)
-)
-app.use(
-    services.resetPassword.prefix,
-    authenticate,
-    createServiceProxy(services.resetPassword.target)
-)
+  products: {
+    prefix: "/products",
+    target: "http://product-service:3000"
+  },
 
-app.use(
-    services.profile.prefix,
-    authenticate,
-    createServiceProxy(services.profile.target)
-)
-app.use(
-    services.bank.prefix,
-    authenticate,
-    createServiceProxy(services.bank.target)
-)
+  cart: {
+    prefix: "/cart",
+    target: "http://cart-checkout-server:3000"
+  },
 
-app.use(
-    services.products.prefix,
-    authenticate,
-    createServiceProxy(services.products.target)
-)
+  checkout: {
+    prefix: "/checkout",
+    target: "http://cart-checkout-server:3000"
+  },
 
-app.use(
-    services.cart.prefix,
-    authenticate,
-    createServiceProxy(services.cart.target)
-)
+  bank: {
+    prefix: "/bank",
+    target: "http://bank-server:3000"
+  },
 
-app.use(
-    services.checkout.prefix,
-    authenticate,
-    createServiceProxy(services.checkout.target)
-)
-// Protected routes
-app.use(
-  services.blog.prefix,
-  authenticate,
-  createServiceProxy(services.blog.target)
-)
+  profile: {
+    prefix: "/profile",
+    target: "http://auth-server:3000"
+  },
 
-app.use(
-  services.order.prefix,
-  authenticate,
-  createServiceProxy(services.order.target)
-)
+  resetPassword: {
+    prefix: "/reset",
+    target: "http://auth-server:3000"
+  },
 
-// Health check
-app.get("/health", (req, res) => {
-  res.json({ status: "API Gateway running" })
-})
+  order: {
+    prefix: "/order",
+    target: "http://cart-checkout-server:3000"
+  },
 
-app.listen(3000, () => {
-  console.log("API Gateway running on port 3000")
-})
+  blog: {
+    prefix: "/blog",
+    target: "http://product-service:3000"
+  }
+
+};

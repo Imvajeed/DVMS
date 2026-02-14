@@ -1,23 +1,16 @@
 import jwt from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 
-/* ---------- fix path inside docker ---------- */
+// build correct absolute path inside docker container
+const publicKeyPath = path.join(process.cwd(), "keys", "access_public.pem");
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// absolute path to keys folder
-const publicKeyPath = path.join(__dirname, "../../keys/access_public.pem");
-
-// read key
+// read the public key
 const publicKey = fs.readFileSync(publicKeyPath, "utf8");
-
-/* ---------- middleware ---------- */
 
 export const requireAuth = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
+
   if (!token) return res.sendStatus(401);
 
   try {
@@ -27,10 +20,9 @@ export const requireAuth = (req, res, next) => {
       audience: "microservices",
     });
 
-    req.user = payload;
+    req.user = payload; // user info (sub = user id)
     next();
   } catch (err) {
-    console.log("JWT ERROR:", err.message);
-    res.sendStatus(401);
+    return res.sendStatus(401);
   }
 };

@@ -12,6 +12,7 @@ app.use("/products",productRouter);
 
 
 
-app.listen(4003,()=>{
-    console.log("Product server started on the port 4003");
-})
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

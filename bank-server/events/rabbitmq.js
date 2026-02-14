@@ -1,29 +1,24 @@
-import amqp from "amqplib"
+import amqp from "amqplib";
 
-let channel
+let channel, connection;
 
 export const connectRabbitMQ = async () => {
-  const conn = await amqp.connect(process.env.RABBITMQ_URL)
-  channel = await conn.createChannel()
-  await channel.assertExchange("checkout", "topic", { durable: true })
-}
+  try {
+    const url = process.env.RABBITMQ_URL || "amqp://rabbitmq:5672";
 
-export const publish = (routingKey, data) => {
-  channel.publish(
-    "checkout",
-    routingKey,
-    Buffer.from(JSON.stringify(data)),
-    { persistent: true }
-  )
-}
+    connection = await amqp.connect(url);
+    channel = await connection.createChannel();
 
-export const subscribe = async (queue, routingKey, handler) => {
-  await channel.assertQueue(queue, { durable: true })
-  await channel.bindQueue(queue, "checkout", routingKey)
+    console.log("✅ Connected to RabbitMQ");
 
-  channel.consume(queue, async (msg) => {
-    const data = JSON.parse(msg.content.toString())
-    await handler(data)
-    channel.ack(msg)
-  })
-}
+    await channel.assertQueue("bank-queue", {
+      durable: true,
+    });
+
+  } catch (err) {
+    console.log("❌ RabbitMQ not ready, retrying in 5 seconds...");
+    setTimeout(connectRabbitMQ, 5000);
+  }
+};
+
+export const getChannel = () => channel;

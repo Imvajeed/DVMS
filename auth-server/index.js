@@ -23,6 +23,7 @@ app.use('/profile',profileRouter);
 app.use('/reset-password', resetPassword)
 
 
-app.listen(4000,()=>{
-    console.log("Auth Server Started on port number 4000")
-})
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

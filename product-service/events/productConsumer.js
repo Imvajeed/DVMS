@@ -32,13 +32,13 @@ export const startProductConsumer = async () => {
           }
 
           // ❌ Not enough stock
-          // if (product.stock < item.quantity) {
-          //   publish(EVENTS.PRICE_VALIDATION_FAILED, {
-          //     checkoutId,
-          //     reason: "INSUFFICIENT_STOCK"
-          //   })
-          //   return
-          // }
+          if (product.stock < item.quantity) {
+            publish(EVENTS.PRICE_VALIDATION_FAILED, {
+              checkoutId,
+              reason: "INSUFFICIENT_STOCK"
+            })
+            return
+          }
 
           const itemTotal = product.price * item.quantity
           totalAmount += itemTotal

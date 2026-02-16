@@ -24,8 +24,12 @@ const calculateBalance = async (userId) => {
 }
 
 const handleGetBalance = async (req, res) => {
-    const userId = req.user.userId;
-    const balance = calculateBalance(userId);
+    const userId = req.headers["x-user-id"];
+
+    console.log("User ID", userId);
+    const balance = await calculateBalance(userId);
+
+    console.log("User Balance : ", balance)
 
 
     return res.status(200).json({ balance });

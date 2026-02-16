@@ -4,6 +4,7 @@ import {requireSeller} from "../middleware/roleCheck.js"
 
 const router = express.Router();
 
+
 router.get("/", getAllProducts);
 router.post("/",requireSeller, addProduct);
 router.put("/:id",requireSeller, updateProduct);

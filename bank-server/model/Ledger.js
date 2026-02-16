@@ -27,7 +27,8 @@ const ledgerSchema = new mongoose.Schema(
         "TRANSFER",
         "PURCHASE",
         "REFUND",
-        "ADJUSTMENT"
+        "ADJUSTMENT",
+        "SELL"
       ],
       required: true
     },

@@ -12,6 +12,7 @@ const hashToken = (token) => crypto.createHash("sha256").update(token).digest("h
 const handleRegisterUser = async (req, res) => {
     try {
         const { username, email, password } = req.body
+        const role = req.body.role;
 
         // 1. Basic validation
         if (!username || !email || !password) {
@@ -41,7 +42,8 @@ const handleRegisterUser = async (req, res) => {
         const user = await User.create({
             username,
             email,
-            password
+            password,
+            role
         })
 
         publish(USER_EVENTS.USER_CREATED, {

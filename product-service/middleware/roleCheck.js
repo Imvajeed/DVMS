@@ -1,4 +1,5 @@
 export const requireSeller = (req, res, next) => {
+
   const role = req.headers["x-user-role"]
 
   if (role !== "seller") {

@@ -17,7 +17,7 @@ export const checkout = async (req, res) => {
 
   publish(EVENTS.CHECKOUT_REQUESTED, {
     checkoutId,
-    userId,
+    buyerId:userId,
     items
   })
 

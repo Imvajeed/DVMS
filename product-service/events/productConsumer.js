@@ -1,38 +1,69 @@
+import Product from "../models/Product.js"
 import { EVENTS } from "../events/checkout-events.js"
 import { subscribe, publish } from "../events/rabbitmq.js"
-import Product from "../models/Product.js"
 
 export const startProductConsumer = async () => {
+
   await subscribe(
     "product-checkout",
     EVENTS.CHECKOUT_REQUESTED,
     async (data) => {
       try {
-        let total = 0
+        const { checkoutId, buyerId, items } = data
 
-        for (const item of data.items) {
+        
+
+        let totalAmount = 0
+        const enrichedItems = []
+
+        for (const item of items) {
+
           const product = await Product.findById(item.productId)
+          console.log("Products sent for validation : ", product);
 
-          if (!product || product.status !== "ACTIVE") {
-            // ❌ Explicit failure event
+          // ❌ Product not found
+          if (!product) {
+            console.log("Product validation failed!!!!!!!!!!!!");
             publish(EVENTS.PRICE_VALIDATION_FAILED, {
-              checkoutId: data.checkoutId,
-              reason: "PRODUCT_NOT_AVAILABLE",
-              productId: item.productId
+              checkoutId,
+              reason: "PRODUCT_NOT_FOUND"
             })
             return
           }
 
-          total += product.price * item.quantity
+          // ❌ Not enough stock
+          // if (product.stock < item.quantity) {
+          //   publish(EVENTS.PRICE_VALIDATION_FAILED, {
+          //     checkoutId,
+          //     reason: "INSUFFICIENT_STOCK"
+          //   })
+          //   return
+          // }
+
+          const itemTotal = product.price * item.quantity
+          totalAmount += itemTotal
+
+          enrichedItems.push({
+            productId: product._id,
+            sellerId: product.sellerId,
+            price: product.price,
+            quantity: item.quantity
+          })
         }
 
-        // ✅ Explicit success event
+
+        // ✅ Emit enriched event
         publish(EVENTS.PRICE_VALIDATED, {
-          checkoutId: data.checkoutId,
-          totalAmount: total
+          checkoutId,
+          buyerId,
+          items: enrichedItems,
+          totalAmount
         })
+        return
+
       } catch (err) {
-        // ❌ System-level failure
+        console.error("CHECKOUT_REQUESTED error:", err)
+
         publish(EVENTS.PRICE_VALIDATION_FAILED, {
           checkoutId: data.checkoutId,
           reason: "INTERNAL_ERROR"

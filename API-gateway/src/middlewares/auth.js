@@ -23,6 +23,10 @@ export const authenticate = (req, res, next) => {
       permissions: payload.permissions
     }
 
+
+
+
+
     next()
   } catch (err) {
     return res.sendStatus(401)

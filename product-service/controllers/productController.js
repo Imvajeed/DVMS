@@ -5,7 +5,7 @@ import Product from "../models/product.js";
  */
 const addProduct = async (req, res) => {
   const sellerId = req.headers["x-user-id"]
-  const { name, description, price } = req.body
+  const { name, description, price,stock } = req.body
 
   if (!name || !price) {
     return res.status(400).json({ message: "Name and price required" })
@@ -15,7 +15,8 @@ const addProduct = async (req, res) => {
     name,
     description,
     price,
-    sellerId
+    sellerId,
+    stock
   })
 
   res.status(201).json(product)

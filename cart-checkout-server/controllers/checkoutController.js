@@ -7,19 +7,33 @@ export const checkout = async (req, res) => {
   const userId = req.headers["x-user-id"]
   const { items } = req.body
 
-  const checkoutId = crypto.randomUUID()
+  let status = []
 
-  await Checkout.create({
-    checkoutId,
-    userId,
-    status: "PENDING"
-  })
 
-  publish(EVENTS.CHECKOUT_REQUESTED, {
-    checkoutId,
-    buyerId:userId,
-    items
-  })
 
-  res.json({ checkoutId, status: "PENDING" })
+
+
+  for (const item of items) {
+    const checkoutId = crypto.randomUUID()
+
+    await Checkout.create({
+      checkoutId,
+      userId,
+      status: "PENDING"
+    })
+
+
+    publish(EVENTS.CHECKOUT_REQUESTED, {
+      checkoutId,
+      buyerId: userId,
+      item
+    })
+
+    status.push({ checkoutId, status: "PENDING" })
+
+  }
+
+
+
+  res.json(status)
 }

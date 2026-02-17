@@ -35,6 +35,9 @@ export const startCheckoutConsumers = async () => {
         await checkout.save()
 
         // Trigger payment
+
+        
+
         publish(EVENTS.PROCESS_PAYMENT, data)
 
       } catch (err) {

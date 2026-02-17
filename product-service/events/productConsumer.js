@@ -1,4 +1,4 @@
-import Product from "../models/Product.js"
+import Product from "../models/product.js"
 import { EVENTS } from "../events/checkout-events.js"
 import { subscribe, publish } from "../events/rabbitmq.js"
 
